@@ -1,10 +1,33 @@
-from django.db.models import fields
 from rest_framework.serializers import ModelSerializer
 
-from .models import Dacha
+from .models import *
 
 
-class DachaSerializer(ModelSerializer):
+class UserSerializer(ModelSerializer):
     class Meta:
-        model = Dacha
-        fields = "__all__"
+        model = User
+        fields = ["id", "phone", "password", "first_name", "last_name", "photo", "balance"]
+        extra_kwargs = {
+            "password": {
+                "write_only": True,
+            }
+        }
+    
+
+    def create(self, validated_data):
+        user = User.objects.create_user(**validated_data)
+        return user
+    
+
+    def update(self, instance, validated_data):
+        if "password" in validated_data:
+            password = validated_data.pop("password")
+            instance.set_password(password)
+        
+        return super().update(instance, validated_data)
+
+
+# class DachaSerializer(ModelSerializer):
+#     class Meta:
+#         model = Dacha
+#         fields = "__all__"

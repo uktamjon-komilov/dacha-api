@@ -2,11 +2,11 @@ from django.urls import path, include
 
 from rest_framework.routers import DefaultRouter
 
-from .views import DachaViewSet
+from .views import *
 
 
 router = DefaultRouter()
-router.register("dacha", DachaViewSet, basename="dacha")
+router.register("user", UserViewSet, basename="user")
 
 
 urlpatterns = [
