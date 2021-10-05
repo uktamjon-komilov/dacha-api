@@ -6,9 +6,12 @@ from .views import *
 
 
 router = DefaultRouter()
-router.register("user", UserViewSet, basename="user")
+router.register("users", UserViewSet, basename="user")
+router.register("estate", EstateViewSet, basename="estate")
 
 
 urlpatterns = [
     path("", include(router.urls)),
+    path("login/", CustomAuthToken.as_view()),
+    path("facilities/", EstateFacilityListView.as_view()),
 ]

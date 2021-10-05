@@ -15,6 +15,7 @@ INSTALLED_APPS = [
     "django.contrib.staticfiles",
 
     "rest_framework",
+    "rest_framework.authtoken",
     "parler",
 
     "api"
@@ -87,3 +88,15 @@ MEDIA_URL = "/media/"
 MEDIA_ROOT = os.path.join(BASE_DIR, "media")
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
+
+PARLER_LANGUAGES = {
+    None: (
+        {"code": "en",},
+        {"code": "uz",},
+        {"code": "ru",},
+    ),
+    "default": {
+        "fallbacks": ["uz"],
+        "hide_untranslated": False,
+    }
+}

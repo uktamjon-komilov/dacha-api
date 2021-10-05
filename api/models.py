@@ -14,6 +14,9 @@ class User(AbstractBaseUser, PermissionsMixin):
     photo = models.FileField(null=True, blank=True, upload_to="user/")
     balance = models.FloatField(default=0.0)
 
+    is_staff = models.BooleanField(default=True)
+    is_admin = models.BooleanField(default=False)
+
     USERNAME_FIELD = "phone"
     REQUIRED_FIELDS = []
 
@@ -37,6 +40,9 @@ class EstateFacility(TranslatableModel):
         title = models.CharField(_("Nomi"), max_length=200)
     )
 
+    def __str__(self):
+        return self.safe_translation_getter("title", any_language=True)
+
 
 class Estate(TranslatableModel, DateTimeMixin):
     TYPE = [
@@ -59,11 +65,11 @@ class Estate(TranslatableModel, DateTimeMixin):
     estate_type = models.CharField(max_length=50, choices=TYPE, verbose_name=_("Mulk turi"))
     photo = models.FileField(upload_to="images/", verbose_name=_("Asosiy rasm"))
 
-    beds = models.IntegerField()
-    pool = models.IntegerField()
-    people = models.IntegerField()
+    beds = models.IntegerField(default=0, blank=True)
+    pool = models.IntegerField(default=0, blank=True)
+    people = models.IntegerField(default=0, blank=True)
 
-    facilities = models.ManyToManyField(EstateFacility)
+    facilities = models.ManyToManyField(EstateFacility, blank=True)
 
     description = models.TextField(verbose_name=_("Tavsif"))
 

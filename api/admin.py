@@ -1,3 +1,7 @@
 from django.contrib import admin
+from parler.admin import TranslatableAdmin
 
-# Register your models here.
+from .models import *
+
+
+admin.site.register(EstateFacility,TranslatableAdmin)
