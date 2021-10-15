@@ -1,9 +1,33 @@
-from rest_framework.serializers import ModelSerializer
-from rest_framework.viewsets import ModelViewSet
+from rest_framework.viewsets import ModelViewSet, ViewSet
 from rest_framework.generics import ListAPIView
+from rest_framework.views import APIView
+from rest_framework.decorators import action
+from django.conf import settings
+import pytz
+import redis
 
 from .models import *
 from .serializers import *
+
+
+r = redis.StrictRedis()
+
+
+class EstateTypesApiView(APIView):
+
+    def get(self, request):
+        ESTATE = Estate.__dict__.get("TYPE", None)
+        if not ESTATE:
+            return Response({"status": False, "error": "There is no estate type available.", "result": []})
+
+        result = [
+            {
+                "slug": item[0],
+                "name": item[1]
+            }
+            for item in ESTATE
+        ]
+        return Response(result)
 
 
 class UserViewSet(ModelViewSet):
@@ -24,3 +48,90 @@ class EstateFacilityListView(ListAPIView):
         queryset = self.get_queryset()
         serializer = self.serializer_class(queryset, many=True)
         return Response(serializer.data)
+
+
+class SmsOTP(ViewSet):
+    serializer_class = SendOTPSerializer
+
+
+    @action(detail=False, methods=["post"], url_path="send-message")
+    def send_message(self, request):
+        serializer = self.serializer_class(data=request.data)
+
+        result = False
+
+        if serializer.is_valid():
+            phone = serializer.validated_data["phone"]
+
+            pin = self.generate_code()
+
+            r.set(phone, pin)
+            r.expire(phone, settings.SMS_EXPIRE_SECONDS)
+
+            result = self._send_message(phone, pin)
+
+            if result:
+                return Response({
+                    "message": "Verifiction code has been sent.",
+                    "status": result,
+                    "phone": phone,
+                    "expire_in": settings.SMS_EXPIRE_SECONDS
+                })
+
+        return Response({
+            "message": "Verifiction code has not been sent.",
+            "status": result,
+            "phone": phone,
+            "expire_in": None
+        })
+
+
+    @action(detail=False, methods=["post"], url_path="verify")
+    def verify(self, request):
+        serializer = self.serializer_class(data=request.data)
+
+        result = False
+
+        if serializer.is_valid():
+            phone = serializer.validated_data["phone"]
+            code = serializer.validated_data["code"]
+            result = self._verify(phone, code)
+            if result:
+                return Response({
+                    "message": "Verifiction is successful.",
+                    "status": result,
+                    "phone": phone
+                })
+
+        return Response({
+            "message": "Verifiction isn't successful.",
+            "status": result,
+            "phone": None
+        })
+
+
+    def _send_message(self, phone, code):
+        print(phone, code)
+        return True
+    
+
+    def _verify(self, phone, code):
+        if r.exists(phone):
+            try:
+                pin = str(r.get(phone))[2:-1]
+                print(pin, code)
+                if str(code) == pin:
+                    r.set(phone, None)
+                    return True
+            except Exception as e:
+                print(e)
+                return False
+        
+        return False
+    
+
+    def generate_code(self):
+        import random
+        import string
+        digits = string.digits
+        return "".join([digits[random.randint(0, len(digits)-1)] for _ in range(5)])

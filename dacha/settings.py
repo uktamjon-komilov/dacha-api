@@ -17,6 +17,7 @@ INSTALLED_APPS = [
     "rest_framework",
     "rest_framework.authtoken",
     "parler",
+    "drf_yasg",
 
     "api"
 ]
@@ -75,8 +76,8 @@ AUTH_PASSWORD_VALIDATORS = [
 
 AUTH_USER_MODEL = "api.User"
 
-LANGUAGE_CODE = "en-us"
-TIME_ZONE = "UTC"
+LANGUAGE_CODE = "en"
+TIME_ZONE = "Asia/Tashkent"
 USE_I18N = True
 USE_L10N = True
 USE_TZ = True
@@ -100,3 +101,8 @@ PARLER_LANGUAGES = {
         "hide_untranslated": False,
     }
 }
+
+SMS_EXPIRE_SECONDS = 120
+
+REDIS_HOST = "localhost"
+REDIS_PORT = 6379

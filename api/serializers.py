@@ -1,4 +1,7 @@
-from rest_framework.serializers import ModelSerializer
+from re import search
+from django.db.models.query_utils import select_related_descend
+from rest_framework import serializers
+from rest_framework.serializers import ModelSerializer, Serializer
 from rest_framework.authtoken.views import ObtainAuthToken
 from rest_framework.authtoken.models import Token
 from rest_framework.response import Response
@@ -31,24 +34,6 @@ class UserSerializer(ModelSerializer):
         return super().update(instance, validated_data)
 
 
-class CustomAuthToken(ObtainAuthToken):
-
-    def post(self, request, *args, **kwargs):
-        serializer = self.serializer_class(data=request.data, context={"request": request})
-        serializer.is_valid(raise_exception=True)
-        user = serializer.validated_data["user"]
-        token, created = Token.objects.get_or_create(user=user)
-        return Response({
-            "token": token.key,
-            "user_id": user.pk,
-            "phone": user.phone,
-            "first_name": user.first_name,
-            "last_name": user.last_name,
-            "balance": user.balance,
-            "photo": user.photo or None,
-        })
-
-
 class EstateFacilitySerializer(TranslatableModelSerializer):
     translations = TranslatedFieldsField(shared_model=EstateFacility)
 
@@ -61,3 +46,8 @@ class EstateSerializer(ModelSerializer):
     class Meta:
         model = Estate
         fields = "__all__"
+
+
+class SendOTPSerializer(Serializer):
+    phone = serializers.CharField(required=True)
+    code = serializers.CharField(required=False)
