@@ -18,6 +18,7 @@ router.register("sms", SmsOTP, basename="sms")
 urlpatterns = [
     path("", include(router.urls)),
     path("estate-types/", EstateTypesApiView.as_view()),
+    path("banners/<slug>/", BannerListApiView.as_view()),
     path("facilities/", EstateFacilityListView.as_view()),
 
     path("token/", TokenObtainPairView.as_view(), name="token_obtain_pair"),

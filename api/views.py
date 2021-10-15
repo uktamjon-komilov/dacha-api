@@ -1,9 +1,10 @@
+from datetime import datetime
 from rest_framework.viewsets import ModelViewSet, ViewSet
 from rest_framework.generics import ListAPIView
 from rest_framework.views import APIView
+from rest_framework import status
 from rest_framework.decorators import action
 from django.conf import settings
-import pytz
 import redis
 
 from .models import *
@@ -14,20 +15,63 @@ r = redis.StrictRedis()
 
 
 class EstateTypesApiView(APIView):
+    queryset = EstateType.objects.all()
+    serializer_class = EstateTypeSerializer
 
     def get(self, request):
-        ESTATE = Estate.__dict__.get("TYPE", None)
-        if not ESTATE:
-            return Response({"status": False, "error": "There is no estate type available.", "result": []})
+        queryset = self.get_queryset()
+        serializer = self.serializer_class(queryset, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+    
 
-        result = [
-            {
-                "slug": item[0],
-                "name": item[1]
-            }
-            for item in ESTATE
-        ]
-        return Response(result)
+    def get_queryset(self):
+        return self.queryset.all()
+
+
+class BannerListApiView(ListAPIView):
+    queryset = EstateBanner.objects.all()
+
+    def get_queryset(self):
+        queryset = super().get_queryset()
+        now = datetime.now()
+        queryset = queryset.filter(
+            expires_in__year=now.year,
+            expires_in__month=now.month,
+            expires_in__day__gte=now.day,
+        )
+        return queryset
+
+
+    def get(self, request, slug=None):
+        queryset = self.get_queryset()
+        if slug:
+            estate_type = EstateType.objects.filter(slug=slug)
+            if estate_type.exists():
+                estate_type = estate_type.first()
+                queryset = queryset.filter(estate__estate_type=estate_type)
+                serializer = EstateBannerSerializer(queryset, many=True)
+                return Response(serializer.data, status=status.HTTP_200_OK)
+            else:
+                return Response(
+                    {
+                        "status": False,
+                        "error": "Any bannner does not exist.",
+                        "result": []
+                    }
+                )
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 class UserViewSet(ModelViewSet):
