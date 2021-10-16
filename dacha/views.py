@@ -23,7 +23,15 @@ class HomeApiView(APIView):
                 {
                     "url": self.url_for("banners/<estate-type-slug>"),
                     "description": "Lists latest banners according to its estate type."
-                }
+                },
+                {
+                    "url": self.url_for("facilities"),
+                    "description": "Lists all the available estate facilities."
+                },
+                {
+                    "url": self.url_for("currencies"),
+                    "description": "Lists available currencies."
+                },
             ],
             status=status.HTTP_200_OK
         )

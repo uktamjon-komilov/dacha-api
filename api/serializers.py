@@ -26,6 +26,23 @@ class CurrencySerializer(TranslatableModelSerializer):
         fields = ["id", "translations"]
 
 
+class EstateShortSerializer(TranslatableModelSerializer):
+    translations = TranslatedFieldsField(shared_model=Estate)
+    price_type = CurrencySerializer()
+
+    class Meta:
+        model = Estate
+        fields = ["id", "photo", "weekday_price", "weekend_price", "price_type", "translations"]
+
+
+class EstateBannerSerializer(TranslatableModelSerializer):
+    estate = EstateShortSerializer()
+
+    class Meta:
+        model = EstateBanner
+        fields = ["id", "estate"]
+
+
 class UserSerializer(ModelSerializer):
     class Meta:
         model = User
@@ -60,27 +77,11 @@ class EstateFacilitySerializer(TranslatableModelSerializer):
 
 class EstateSerializer(TranslatableModelSerializer):
     price_type = CurrencySerializer()
+    facilities = EstateFacilitySerializer(many=True)
 
     class Meta:
         model = Estate
-        fields = ["id", "price_type"]
-
-
-class EstateShortSerializer(TranslatableModelSerializer):
-    translations = TranslatedFieldsField(shared_model=Estate)
-    price_type = CurrencySerializer()
-
-    class Meta:
-        model = Estate
-        fields = ["id", "photo", "weekday_price", "weekend_price", "price_type", "translations"]
-
-
-class EstateBannerSerializer(TranslatableModelSerializer):
-    estate = EstateShortSerializer()
-
-    class Meta:
-        model = EstateBanner
-        fields = ["id", "estate"]
+        fields = "__all__"
 
 
 

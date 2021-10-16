@@ -57,31 +57,9 @@ class BannerListApiView(ListAPIView):
                         "status": False,
                         "error": "Any bannner does not exist.",
                         "result": []
-                    }
+                    },
+                    status=status.HTTP_200_OK
                 )
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-class UserViewSet(ModelViewSet):
-    serializer_class = UserSerializer
-    queryset = User.objects.all()
-
-
-class EstateViewSet(ModelViewSet):
-    serializer_class = EstateSerializer
-    queryset = Estate.objects.all()
 
 
 class EstateFacilityListView(ListAPIView):
@@ -91,7 +69,40 @@ class EstateFacilityListView(ListAPIView):
     def get(self, request):
         queryset = self.get_queryset()
         serializer = self.serializer_class(queryset, many=True)
-        return Response(serializer.data)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+
+class CurrencyListView(ListAPIView):
+    serializer_class = CurrencySerializer
+    queryset = Currency.objects.all()
+
+    def get(self, request):
+        queryset = self.get_queryset()
+        serializer = self.serializer_class(queryset, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+
+
+class EstateViewSet(ModelViewSet):
+    serializer_class = EstateSerializer
+    queryset = Estate.objects.all()
+
+    def get_queryset(self):
+        queryset = super().get_queryset()
+        now = datetime.now()
+        queryset = queryset.filter(
+            expires_in__year=now.year,
+            expires_in__month=now.month,
+            expires_in__day__gte=now.day,
+        )
+        return queryset
+
+
+
+
+class UserViewSet(ModelViewSet):
+    serializer_class = UserSerializer
+    queryset = User.objects.all()
 
 
 class SmsOTP(ViewSet):
