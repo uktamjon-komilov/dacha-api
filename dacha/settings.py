@@ -18,6 +18,7 @@ INSTALLED_APPS = [
     "rest_framework.authtoken",
     "parler",
     "drf_yasg",
+    "corsheaders",
 
     "api"
 ]
@@ -25,6 +26,7 @@ INSTALLED_APPS = [
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
+    "corsheaders.middleware.CorsMiddleware",
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
     "django.contrib.auth.middleware.AuthenticationMiddleware",
@@ -110,3 +112,11 @@ REDIS_PORT = 6379
 REST_FRAMEWORK = {
     "DEFAULT_PAGINATION_CLASS": "api.pagination.CustomPagination"
 }
+
+CORS_ALLOWED_ORIGINS = [
+    "localhost:3000",
+    "http://localhost:3000",
+    "https://dachaturizm.netlify.app/",
+    "http://dachaturizm.netlify.app/",
+    "dachaturizm.netlify.app/"
+]
