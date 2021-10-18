@@ -1,4 +1,5 @@
 from datetime import datetime
+from django.db.models import query
 from rest_framework.viewsets import ModelViewSet, ViewSet
 from rest_framework.generics import ListAPIView, CreateAPIView
 from rest_framework.views import APIView
@@ -180,8 +181,30 @@ class EstateViewSet(ModelViewSet):
             expires_in__day__gte=now.day,
         )
         return queryset
+    
+
+    # def ordering_filter(self, queryset):
+    #     data = self.request.query_params
+    #     ordering = data.get("ordering", None)
+    #     if ordering == "asc":
+    #         queryset = queryset.order_by("created_at")
+    #     elif ordering == "desc":
+    #         queryset = queryset.order_by("-created_at")
+    #     return queryset
+    
+
+    @action(detail=False, methods=["get"], url_name="top")
+    def top(self, request):
+        queryset = self.get_queryset().filter(is_top=True)
+        serializer = self.serializer_class(queryset, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
 
 
+    @action(detail=False, methods=["get"], url_name="simple")
+    def simple(self, request):
+        queryset = self.get_queryset().filter(is_top=False)
+        serializer = self.serializer_class(queryset, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
 
 
 class UserViewSet(ModelViewSet):

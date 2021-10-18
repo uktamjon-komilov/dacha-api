@@ -112,10 +112,11 @@ class Estate(TranslatableModel, DateTimeMixin):
     is_published = models.BooleanField(default=True, verbose_name=_("Chop etilishi"))
     expires_in = models.DateTimeField(blank=True, null=True)
 
+    is_top = models.BooleanField(default=False, null=True, blank=True)
 
     def save(self, *args, **kwargs):
-        filename = add_watermark(self.photo)
-        self.photo = filename
+        if has_changed(self, "photo"):
+            self.photo = add_watermark(self.photo)
         super(Estate, self).save(*args, **kwargs)
 
 
@@ -128,8 +129,8 @@ class EstatePhoto(models.Model, DateTimeMixin):
     photo = models.FileField(upload_to="images/")
 
     def save(self, *args, **kwargs):
-        filename = add_watermark(self.photo)
-        self.photo = filename
+        if has_changed(self, "photo"):
+            self.photo = add_watermark(self.photo)
         super(EstatePhoto, self).save(*args, **kwargs)
 
 
