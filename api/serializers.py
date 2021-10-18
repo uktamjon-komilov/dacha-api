@@ -45,14 +45,21 @@ class EstateBannerSerializer(TranslatableModelSerializer):
 
 
 class UserSerializer(ModelSerializer):
+    estate_ads_count = serializers.SerializerMethodField()
+
     class Meta:
         model = User
-        fields = ["id", "phone", "password", "first_name", "last_name", "photo", "balance"]
+        fields = ["id", "phone", "password", "first_name", "last_name", "photo", "balance", "estate_ads_count"]
         extra_kwargs = {
             "password": {
                 "write_only": True,
             }
         }
+    
+
+    def get_estate_ads_count(self, obj):
+        estates = Estate.objects.filter(user=obj)
+        return estates.count()
     
 
     def create(self, validated_data):
@@ -107,6 +114,7 @@ class EstateSerializer(TranslatableModelSerializer):
     facilities = EstateFacilitySerializer(many=True)
     rating = serializers.SerializerMethodField()
     views = serializers.SerializerMethodField()
+    user_ads_count = serializers.SerializerMethodField()
 
     class Meta:
         model = Estate
@@ -122,6 +130,10 @@ class EstateSerializer(TranslatableModelSerializer):
     
     def get_views(self, obj):
         return obj.views.count()
+    
+
+    def get_user_ads_count(self, obj):
+        return Estate.objects.filter(user=obj.user).count()
 
 
 class SendOTPSerializer(Serializer):
