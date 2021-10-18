@@ -10,7 +10,8 @@ from .views import *
 
 
 router = DefaultRouter()
-router.register("bookings", EstateBookingApiView, basename="bookings")
+router.register("bookings", EstateBookingViewSet, basename="bookings")
+router.register("ratings", EstateRatingViewSet, basename="ratings")
 router.register("users", UserViewSet, basename="user")
 router.register("estate", EstateViewSet, basename="estate")
 router.register("sms", SmsOTP, basename="sms")

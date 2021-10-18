@@ -83,7 +83,7 @@ class CurrencyListView(ListAPIView):
         return Response(serializer.data, status=status.HTTP_200_OK)
 
 
-class EstateBookingApiView(ModelViewSet):
+class EstateBookingViewSet(ModelViewSet):
     serializer_class = EstateBookingSerializer
     queryset = EstateBooking.objects.all()
 
@@ -97,7 +97,53 @@ class EstateBookingApiView(ModelViewSet):
             return Response(serializer.data, status=status.HTTP_200_OK)
         else:
             return Response([], status=status.HTTP_200_OK)
-            
+
+
+class EstateRatingViewSet(ModelViewSet):
+    serializer_class = EstateRatingSerializer
+    queryset = EstateRating.objects.all()
+
+    @action(detail=True, methods=["get"], url_name="related")
+    def related(self, request, pk=None):
+        estate = Estate.objects.filter(id=pk)
+        if estate.exists():
+            estate = estate.first()
+            ratings = EstateRating.objects.filter(estate=estate)
+            result = {
+                "total": ratings.count(),
+                "average_rating": 0.0,
+                "5": {
+                    "percent": 0.0,
+                    "count": 0
+                },
+                "4": {
+                    "percent": 0.0,
+                    "count": 0
+                },
+                "3": {
+                    "percent": 0.0,
+                    "count": 0
+                },
+                "2": {
+                    "percent": 0.0,
+                    "count": 0
+                },
+                "1": {
+                    "percent": 0.0,
+                    "count": 0
+                }
+            }
+            sum_rating = 0.0
+            for rating in ratings:
+                key = str(rating.rating)
+                result[key]["count"] += 1
+                result[key]["percent"] = 100 * result[key]["count"] / ratings.count()
+                sum_rating = rating.rating
+            result["average_rating"] = sum_rating / ratings.count()
+                    
+            return Response(result, status=status.HTTP_200_OK)
+        else:
+            return Response([], status=status.HTTP_200_OK)
 
 
 class EstateViewSet(ModelViewSet):

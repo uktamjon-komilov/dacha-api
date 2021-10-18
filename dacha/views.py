@@ -35,6 +35,10 @@ class HomeApiView(APIView):
                 {
                     "url": self.url_for("bookings"),
                     "description": "Endpoints branch for working bookings of estates."
+                },
+                {
+                    "url": self.url_for("ratings"),
+                    "description": "With this starting endpoint, you can play aroud with estate ratings."
                 }
             ],
             status=status.HTTP_200_OK

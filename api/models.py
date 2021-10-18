@@ -149,3 +149,19 @@ class EstateBooking(models.Model, DateTimeMixin):
 
     def __str__(self):
         return str(self.date)
+
+
+class EstateRating(models.Model, DateTimeField):
+    estate = models.ForeignKey(Estate, on_delete=models.CASCADE, related_name="ratings")
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="rating")
+    rating = models.IntegerField()
+
+    def __str__(self):
+        return "{} - {} - {}".format(self.user, self.estate, self.rating)
+    
+    def save(self, *args, **kwargs):
+        if self.rating < 0:
+            self.rating = 0
+        elif self.rating > 5:
+            self.rating = 5
+        super(EstateRating, self).save(*args, **kwargs)
