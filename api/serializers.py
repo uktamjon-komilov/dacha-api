@@ -8,6 +8,7 @@ from rest_framework.response import Response
 from parler_rest.serializers import TranslatableModelSerializer, TranslatedFieldsField
 
 from .models import *
+from api.image_proccessing.watermarker import add_watermark
 
 
 class EstateTypeSerializer(TranslatableModelSerializer):
@@ -82,7 +83,6 @@ class EstateSerializer(TranslatableModelSerializer):
     class Meta:
         model = Estate
         fields = "__all__"
-
 
 
 class SendOTPSerializer(Serializer):

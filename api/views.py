@@ -13,7 +13,6 @@ from .serializers import *
 
 r = redis.StrictRedis()
 
-
 class EstateTypesApiView(APIView):
     queryset = EstateType.objects.all()
     serializer_class = EstateTypeSerializer

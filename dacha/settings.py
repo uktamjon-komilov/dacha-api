@@ -114,9 +114,9 @@ REST_FRAMEWORK = {
 }
 
 CORS_ALLOWED_ORIGINS = [
-    "localhost:3000",
-    "http://localhost:3000",
-    "https://dachaturizm.netlify.app/",
-    "http://dachaturizm.netlify.app/",
-    "dachaturizm.netlify.app/"
+    # "localhost:3000",
+    # "http://localhost:3000",
+    # "https://dachaturizm.netlify.app/",
+    # "http://dachaturizm.netlify.app/",
+    # "dachaturizm.netlify.app/"
 ]

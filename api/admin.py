@@ -14,8 +14,17 @@ class EstateTypeAdmin(TranslatableAdmin):
         }
 
 
+class EstatePhotoAdmin(admin.StackedInline):
+    model = EstatePhoto
+
+
+class EstateAdmin(TranslatableAdmin):
+
+    inlines = [EstatePhotoAdmin]
+
+
 admin.site.register(EstateFacility, TranslatableAdmin)
-admin.site.register(Estate, TranslatableAdmin)
+admin.site.register(Estate, EstateAdmin)
 admin.site.register(Currency, TranslatableAdmin)
 admin.site.register(EstateType, EstateTypeAdmin)
 admin.site.register(EstateBanner, admin.ModelAdmin)

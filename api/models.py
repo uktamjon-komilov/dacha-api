@@ -6,10 +6,12 @@ from django.contrib.auth import get_user_model
 from django.db.models.fields import DateTimeField
 from django.utils.translation import gettext as _
 from parler.models import TranslatableModel, TranslatedFields
-from django.db.models.signals import post_save
-from django.dispatch import receiver
+
+from api import image_proccessing
+
 
 from .managers import UserManager
+from api.image_proccessing.watermarker import add_watermark
 
 
 class User(AbstractBaseUser, PermissionsMixin):
@@ -33,6 +35,14 @@ class User(AbstractBaseUser, PermissionsMixin):
 
 
 User = get_user_model()
+
+
+def has_changed(instance, field):
+    if not instance.pk:
+        return False
+    old_value = instance.__class__._default_manager.\
+                filter(pk=instance.pk).values(field).get()[field]
+    return not getattr(instance, field) == old_value
 
 
 class DateTimeMixin:
@@ -103,19 +113,24 @@ class Estate(TranslatableModel, DateTimeMixin):
     expires_in = models.DateTimeField(blank=True, null=True)
 
 
-    # def save(self, *args, **kwargs):
-    #     if not self.id:
-    #         self.expires_in = self.created_at + timedelta(days=30)
-    #     super(Estate, self).save(*args, **kwargs)
+    def save(self, *args, **kwargs):
+        filename = add_watermark(self.photo)
+        self.photo = filename
+        super(Estate, self).save(*args, **kwargs)
+
 
     def get_title(self):
         return self.safe_translation_getter("title", any_language=True)
 
 
-
 class EstatePhoto(models.Model, DateTimeMixin):
     estate = models.ForeignKey(Estate, on_delete=models.CASCADE, related_name="photos")
     photo = models.FileField(upload_to="images/")
+
+    def save(self, *args, **kwargs):
+        filename = add_watermark(self.photo)
+        self.photo = filename
+        super(EstatePhoto, self).save(*args, **kwargs)
 
 
 class EstateBanner(models.Model, DateTimeMixin):
@@ -124,8 +139,4 @@ class EstateBanner(models.Model, DateTimeMixin):
     expires_in = models.DateTimeField(blank=True, null=True)
 
     def save(self, *args, **kwargs):
-        # super(EstateBanner, self).save(*args, **kwargs)
-        # if not self.expires_in:
-        #     print(self.created_at)
-        #     self.expires_in = self.created_at + timezone.timedelta(days=30)
         super(EstateBanner, self).save(*args, **kwargs)
