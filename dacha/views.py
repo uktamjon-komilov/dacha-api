@@ -39,6 +39,10 @@ class HomeApiView(APIView):
                 {
                     "url": self.url_for("ratings"),
                     "description": "With this starting endpoint, you can play aroud with estate ratings."
+                },
+                {
+                    "url": self.url_for("views"),
+                    "description": "Using this endpoint you can add view count to an estate with user's ip address"
                 }
             ],
             status=status.HTTP_200_OK

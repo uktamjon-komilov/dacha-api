@@ -23,6 +23,7 @@ urlpatterns = [
     path("banners/<slug>/", BannerListApiView.as_view()),
     path("facilities/", EstateFacilityListView.as_view()),
     path("currencies/", CurrencyListView.as_view()),
+    path("views/", EstateViewsCreateView.as_view()),
 
     path("token/", TokenObtainPairView.as_view(), name="token_obtain_pair"),
     path("token/refresh/", TokenRefreshView.as_view(), name="token_refresh"),

@@ -1,7 +1,6 @@
 from datetime import datetime
-from django.db.models import query
 from rest_framework.viewsets import ModelViewSet, ViewSet
-from rest_framework.generics import ListAPIView
+from rest_framework.generics import ListAPIView, CreateAPIView
 from rest_framework.views import APIView
 from rest_framework import status
 from rest_framework.decorators import action
@@ -144,6 +143,27 @@ class EstateRatingViewSet(ModelViewSet):
             return Response(result, status=status.HTTP_200_OK)
         else:
             return Response([], status=status.HTTP_200_OK)
+
+
+class EstateViewsCreateView(CreateAPIView):
+    serializer_class = EstateViewsSerializer
+    queryset = EstateViews.objects.all()
+
+    def post(self, request):
+        serializer = self.serializer_class(data=request.data)
+        if serializer.is_valid():
+            ip = serializer.validated_data["ip"]
+            estate = serializer.validated_data["estate"]
+            views = EstateViews.objects.filter(ip=ip, estate=estate)
+            if not views.exists():
+                view = EstateViews(ip=ip, estate=estate)
+                view.save()
+            else:
+                view = views.first()
+            serializer = self.serializer_class(view)
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        else:
+            return Response({}, status=status.HTTP_400_BAD_REQUEST)
 
 
 class EstateViewSet(ModelViewSet):

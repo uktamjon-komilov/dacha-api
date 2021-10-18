@@ -165,3 +165,8 @@ class EstateRating(models.Model, DateTimeField):
         elif self.rating > 5:
             self.rating = 5
         super(EstateRating, self).save(*args, **kwargs)
+
+
+class EstateViews(models.Model, DateTimeField):
+    estate = models.ForeignKey(Estate, on_delete=models.CASCADE, related_name="views")
+    ip = models.CharField(max_length=255)
