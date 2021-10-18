@@ -1,5 +1,5 @@
 from datetime import datetime
-from django.db.models import query
+from django.db.models import Q
 from rest_framework.viewsets import ModelViewSet, ViewSet
 from rest_framework.generics import ListAPIView, CreateAPIView
 from rest_framework.views import APIView
@@ -204,6 +204,14 @@ class EstateViewSet(ModelViewSet):
     def simple(self, request):
         queryset = self.get_queryset().filter(is_top=False)
         serializer = self.serializer_class(queryset, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+    
+
+    @action(detail=True, methods=["get"], url_name="similar")
+    def similar(self, request, pk=None):
+        estate = Estate.objects.get(id=pk)
+        estates = Estate.objects.filter(Q(beds=estate.beds) | Q(pool=estate.pool) | Q(people=estate.people)).exclude(id=estate.id)
+        serializer = self.serializer_class(estates, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
 
