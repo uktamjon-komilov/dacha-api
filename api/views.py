@@ -1,4 +1,5 @@
 from datetime import datetime
+from django.db.models import query
 from rest_framework.viewsets import ModelViewSet, ViewSet
 from rest_framework.generics import ListAPIView
 from rest_framework.views import APIView
@@ -9,6 +10,7 @@ import redis
 
 from .models import *
 from .serializers import *
+from .pagination import CustomPagination
 
 
 r = redis.StrictRedis()
@@ -81,10 +83,27 @@ class CurrencyListView(ListAPIView):
         return Response(serializer.data, status=status.HTTP_200_OK)
 
 
+class EstateBookingApiView(ModelViewSet):
+    serializer_class = EstateBookingSerializer
+    queryset = EstateBooking.objects.all()
+
+    @action(detail=True, methods=["get"], url_name="related")
+    def related(self, request, pk=None):
+        estate = Estate.objects.filter(id=pk)
+        if estate.exists():
+            estate = estate.first()
+            bookings = EstateBooking.objects.filter(estate=estate)
+            serializer = self.serializer_class(bookings, many=True)
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        else:
+            return Response([], status=status.HTTP_200_OK)
+            
+
 
 class EstateViewSet(ModelViewSet):
     serializer_class = EstateSerializer
     queryset = Estate.objects.all()
+    pagination_class = CustomPagination
 
     def get_queryset(self):
         queryset = super().get_queryset()

@@ -109,9 +109,9 @@ SMS_EXPIRE_SECONDS = 120
 REDIS_HOST = "localhost"
 REDIS_PORT = 6379
 
-REST_FRAMEWORK = {
-    "DEFAULT_PAGINATION_CLASS": "api.pagination.CustomPagination"
-}
+# REST_FRAMEWORK = {
+#     "DEFAULT_PAGINATION_CLASS": "api.pagination.CustomPagination"
+# }
 
 CORS_ALLOWED_ORIGINS = [
     # "localhost:3000",

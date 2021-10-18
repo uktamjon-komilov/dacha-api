@@ -32,6 +32,10 @@ class HomeApiView(APIView):
                     "url": self.url_for("currencies"),
                     "description": "Lists available currencies."
                 },
+                {
+                    "url": self.url_for("bookings"),
+                    "description": "Endpoints branch for working bookings of estates."
+                }
             ],
             status=status.HTTP_200_OK
         )

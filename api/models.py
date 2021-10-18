@@ -140,3 +140,12 @@ class EstateBanner(models.Model, DateTimeMixin):
 
     def save(self, *args, **kwargs):
         super(EstateBanner, self).save(*args, **kwargs)
+
+
+class EstateBooking(models.Model, DateTimeMixin):
+    estate = models.ForeignKey(Estate, on_delete=models.CASCADE, related_name="booked_days")
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="bookings")
+    date = models.DateField()
+
+    def __str__(self):
+        return str(self.date)

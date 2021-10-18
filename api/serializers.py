@@ -76,6 +76,20 @@ class EstateFacilitySerializer(TranslatableModelSerializer):
         fields = ["id", "translations"]
 
 
+class EstateBookingSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = EstateBooking
+        fields = ["id", "date", "estate", "user"]
+        extra_kwargs = {
+            "estate": {
+                "write_only": True
+            },
+            "user": {
+                "write_only": True
+            }
+        }
+
+
 class EstateSerializer(TranslatableModelSerializer):
     price_type = CurrencySerializer()
     facilities = EstateFacilitySerializer(many=True)
