@@ -223,37 +223,13 @@ class UserViewSet(ModelViewSet):
 class SmsOTP(ViewSet):
     serializer_class = SendOTPSerializer
 
-
     @action(detail=False, methods=["post"], url_path="send-message")
     def send_message(self, request):
         serializer = self.serializer_class(data=request.data)
-
-        result = False
-
         if serializer.is_valid():
             phone = serializer.validated_data["phone"]
+            self._send_message(phone)
 
-            pin = self.generate_code()
-
-            r.set(phone, pin)
-            r.expire(phone, settings.SMS_EXPIRE_SECONDS)
-
-            result = self._send_message(phone, pin)
-
-            if result:
-                return Response({
-                    "message": "Verifiction code has been sent.",
-                    "status": result,
-                    "phone": phone,
-                    "expire_in": settings.SMS_EXPIRE_SECONDS
-                })
-
-        return Response({
-            "message": "Verifiction code has not been sent.",
-            "status": result,
-            "phone": phone,
-            "expire_in": None
-        })
 
 
     @action(detail=False, methods=["post"], url_path="verify")
