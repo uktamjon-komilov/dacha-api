@@ -145,7 +145,13 @@ class EstateRatingViewSet(ModelViewSet):
                 result[key]["count"] += 1
                 result[key]["percent"] = 100 * result[key]["count"] / ratings.count()
                 sum_rating = rating.rating
-            result["average_rating"] = sum_rating / ratings.count()
+            
+            count = ratings.count()
+            if count == 0:
+                result["average_rating"] = 0.0
+            else:
+                result["average_rating"] = sum_rating / ratings.count()
+                
                     
             return Response(result, status=status.HTTP_200_OK)
         else:
@@ -204,6 +210,55 @@ class EstateViewSet(ModelViewSet):
             expires_in__month=now.month,
             expires_in__day__gte=now.day,
         )
+
+        address = self.request.query_params.get("address", None)
+        if address:
+            queryset = queryset.filter(address__contains=address)
+        
+        fromDate = self.request.query_params.get("fromDate", None)
+        toDate = self.request.query_params.get("toDate", None)
+        if fromDate and toDate:
+            empty_estate_ids = []
+            for item in queryset:
+                bookings = item.booked_days.all()
+                empty = True
+                for booking in bookings:
+                    from_year, from_month, from_day = list(map(int, fromDate.split("-")))
+                    to_year, to_month, to_day = list(map(int, toDate.split("-")))
+                    year, month, day = list(map(int, str(booking.date).split("-")))
+                    empty = not (
+                        (from_year <= year <= to_year)
+                        and
+                        (from_month <= month <= to_month)
+                        and
+                        (from_day <= day <= to_day)
+                    )
+                if empty:
+                    empty_estate_ids.append(item.id)
+            queryset = queryset.filter(id__in=empty_estate_ids)
+
+        
+        people = self.request.query_params.get("people", None)
+        if people:
+            queryset = queryset.filter(people__gte=int(people))
+        
+        price = self.request.query_params.get("price", None)
+        if price:
+            queryset = queryset.filter(price__gte=float(price))
+
+        term = self.request.query_params.get("term", None)
+        if term:
+            queryset = queryset.filter(
+                Q(title__contains=term) |
+                Q(description__contains=term) |
+                Q(address__contains=term)
+            )
+
+        facility_ids = self.request.query_params.get("facility_ids", None)
+        if facility_ids:
+            facility_ids = list(map(int, facility_ids.split(",")))
+            queryset = queryset.filter(facilities__id__in=facility_ids)
+
         return queryset
     
 

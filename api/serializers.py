@@ -118,6 +118,7 @@ class EstateViewsSerializer(serializers.ModelSerializer):
 class EstateSerializer(TranslatableModelSerializer):
     translations = TranslatedFieldsField(shared_model=Estate)
     price_type = CurrencySerializer()
+    booked_days = EstateBookingSerializer(many=True)
     facilities = EstateFacilitySerializer(many=True)
     photos = EstatePhotoSerializer(many=True)
     rating = serializers.SerializerMethodField()
