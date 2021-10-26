@@ -103,6 +103,12 @@ class EstateRatingSerializer(serializers.ModelSerializer):
         fields = ["id", "rating", "estate", "user"]
 
 
+class EstatePhotoSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = EstatePhoto
+        fields = ["id", "photo", "estate"]
+
+
 class EstateViewsSerializer(serializers.ModelSerializer):
     class Meta:
         model = EstateViews
@@ -110,8 +116,10 @@ class EstateViewsSerializer(serializers.ModelSerializer):
 
 
 class EstateSerializer(TranslatableModelSerializer):
+    translations = TranslatedFieldsField(shared_model=Estate)
     price_type = CurrencySerializer()
     facilities = EstateFacilitySerializer(many=True)
+    photos = EstatePhotoSerializer(many=True)
     rating = serializers.SerializerMethodField()
     views = serializers.SerializerMethodField()
     user_ads_count = serializers.SerializerMethodField()
@@ -125,8 +133,12 @@ class EstateSerializer(TranslatableModelSerializer):
         sum_rating = 0
         for rating in ratings:
             sum_rating += rating.rating
-        
-        return (sum_rating / ratings.count())
+
+        count = ratings.count()
+        if count == 0:
+            return 0.0
+
+        return (sum_rating / count)
     
     def get_views(self, obj):
         return obj.views.count()
@@ -134,6 +146,12 @@ class EstateSerializer(TranslatableModelSerializer):
 
     def get_user_ads_count(self, obj):
         return Estate.objects.filter(user=obj.user).count()
+    
+
+    def create(self, validated_data):
+        print(validated_data)
+        description = validated_data.pop("")
+        # return super(EstateSerializer, self).create(validated_data)
 
 
 class SendOTPSerializer(Serializer):

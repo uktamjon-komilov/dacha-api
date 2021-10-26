@@ -1,16 +1,22 @@
 from datetime import datetime
 from django.db.models import Q
+from django.contrib.contenttypes.models import ContentType
 from rest_framework.viewsets import ModelViewSet, ViewSet
 from rest_framework.generics import ListAPIView, CreateAPIView
 from rest_framework.views import APIView
 from rest_framework import status
-from rest_framework.decorators import action
+from rest_framework.decorators import action, parser_classes
+from rest_framework.parsers import JSONParser, MultiPartParser
 from django.conf import settings
 import redis
+import json
+from django.core.files import File
+import os
 
 from .models import *
 from .serializers import *
 from .pagination import CustomPagination
+from .utils import *
 
 
 r = redis.StrictRedis()
@@ -171,6 +177,8 @@ class EstateViewSet(ModelViewSet):
     serializer_class = EstateSerializer
     queryset = Estate.objects.all()
     pagination_class = CustomPagination
+    parser_classes = [JSONParser, MultiPartParser]
+    languages_codes = settings.PARLER_LANGUAGES[None]
 
     def get_queryset(self):
         queryset = super().get_queryset()
@@ -183,15 +191,83 @@ class EstateViewSet(ModelViewSet):
         return queryset
     
 
-    # def ordering_filter(self, queryset):
-    #     data = self.request.query_params
-    #     ordering = data.get("ordering", None)
-    #     if ordering == "asc":
-    #         queryset = queryset.order_by("created_at")
-    #     elif ordering == "desc":
-    #         queryset = queryset.order_by("-created_at")
-    #     return queryset
+    def custom_write_file(self, photo):
+        try:
+            filename = os.path.join("images", str(datetime.now()).replace(" ", "_").replace("-", "_").replace(":", "_")[:19] + str(photo))
+            mediapath = os.path.join("media", "images", str(datetime.now()).replace(" ", "_").replace("-", "_").replace(":", "_")[:19] + str(photo))
+            filepath = os.path.join(settings.BASE_DIR, mediapath)
+            with open(filepath, "wb+") as temp_file:
+                for chunk in photo.chunks():
+                    temp_file.write(chunk)
+        except Exception as e:
+            print(e, "202")
+        
+        return filename, filepath
     
+    def create(self, request, *args, **kwargs):
+        data = request.data
+
+        facility_ids = list(map(int, data["facilities"][1:-1].split(",")))
+        translations = json.loads(request.data["translations"])
+        
+        user = User.objects.get(id=data["user"])
+        estate_type = EstateType.objects.get(id=data["estate_type"])
+        price_type = Currency.objects.get(id=data["price_type"])
+        facilities = EstateFacility.objects.filter(id__in=facility_ids)
+        
+        estate = Estate(
+            beds = data["beds"],
+            pool = data["pool"],
+            people = data["people"],
+            weekday_price = data["weekday_price"],
+            weekend_price = data["weekend_price"],
+            address = data["address"],
+            longtitute = data["longtitute"],
+            latitute = data["latitute"],
+            announcer = data["announcer"],
+            phone = data["phone"],
+            photo = data["photo"],
+            is_published = (data["is_published"] == "true")
+        )
+        estate.user = user
+        estate.estate_type = estate_type
+        estate.price_type = price_type
+        estate.save()
+
+        for facility in facilities:
+            estate.facilities.add(facility)
+
+        available_lang = get_available_lang(translations)
+        if available_lang:
+            akeys = list(available_lang.keys())[0]
+            avalues = list(available_lang.values())[0]
+            EstateTranslation = ContentType.objects.get(app_label="api", model="estatetranslation").model_class()
+            for key, values in translations.items():
+                testate = EstateTranslation(language_code=key, master_id=estate.id)
+                if key == akeys:
+                    for vkey, vvalue in values.items():
+                        if hasattr(testate, vkey):
+                            setattr(testate, vkey, vvalue)
+                else:
+                    for vkey in values.keys():
+                        if hasattr(testate, vkey):
+                            vvalue = translate_text(avalues[vkey], akeys, key)
+                            setattr(testate, vkey, vvalue)
+                testate.save()
+        
+        i = 1
+        while True:
+            photo = data.get(f"photo{i}", None)
+            if not photo:
+                print(i)
+                break
+            estate_photo = EstatePhoto(estate=estate, photo=photo)
+            estate_photo.save()
+            i += 1
+ 
+        serializer = self.serializer_class(estate)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+        
 
     @action(detail=False, methods=["get"], url_name="top")
     def top(self, request):

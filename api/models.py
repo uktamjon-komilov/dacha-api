@@ -1,4 +1,4 @@
-from datetime import timedelta
+from datetime import timedelta, datetime
 from django.utils import timezone
 from django.db import models
 from django.contrib.auth.models import AbstractBaseUser, PermissionsMixin
@@ -35,6 +35,23 @@ class User(AbstractBaseUser, PermissionsMixin):
 
 
 User = get_user_model()
+
+
+def get_next_date(today, day):
+    months = {
+        "1, 3, 5, 7, 8, 10, 12": 31,
+        "4, 6, 9, 11": 30 
+    }
+    if today.month == 12 and (today.day + day) > 31:
+        year = today.year + 1
+        month = 1
+        day = (today.day + day) - 31
+    else:
+        year = today.year
+        month = today.month
+        day = today.day + day
+
+    return (year, month, day)
 
 
 def has_changed(instance, field):
@@ -78,11 +95,23 @@ class EstateType(TranslatableModel):
         return self.safe_translation_getter("title", any_language=True)
 
 
+class EstatePlan(TranslatableModel):
+    translations = TranslatedFields(
+        title = models.CharField(_("Nomi"), max_length=200)
+    )
+    days = models.IntegerField()
+    price = models.FloatField()
+
+    def __str__(self):
+        return self.safe_translation_getter("title", any_language=True)
+
+
 class Estate(TranslatableModel, DateTimeMixin):
     user = models.ForeignKey(User, on_delete=models.CASCADE, verbose_name=_("E'lon beruvchi profili"))
 
     translations = TranslatedFields(
-        title = models.CharField(_("Nomi"), max_length=200)
+        title = models.CharField(_("Nomi"), max_length=200),
+        description = models.TextField(verbose_name=_("Tavsif"))
     )
     
     estate_type = models.ForeignKey(EstateType, on_delete=models.SET_NULL, null=True, blank=True, verbose_name=_("Mulk turi"))
@@ -94,14 +123,11 @@ class Estate(TranslatableModel, DateTimeMixin):
 
     facilities = models.ManyToManyField(EstateFacility, blank=True)
 
-    description = models.TextField(verbose_name=_("Tavsif"))
-
     price_type = models.ForeignKey(Currency, on_delete=models.SET_NULL, null=True, blank=True)
     weekday_price = models.FloatField(verbose_name=_("Begim kunlaridagi narxi"))
     weekend_price = models.FloatField(verbose_name=_("Dam olish kunlari narxi"))
 
-    region = models.CharField(max_length=50, verbose_name=_("Viloyat"))
-    district = models.CharField(max_length=50, verbose_name=_("Tuman"))
+    address = models.CharField(max_length=255, verbose_name=_("Manzil"))
 
     longtitute = models.FloatField(null=True, blank=True, verbose_name=_("Longtitute"))
     latitute = models.FloatField(null=True, blank=True, verbose_name=_("Latitute"))
@@ -110,13 +136,19 @@ class Estate(TranslatableModel, DateTimeMixin):
     phone = models.CharField(max_length=20, verbose_name="Telefon raqam")
 
     is_published = models.BooleanField(default=True, verbose_name=_("Chop etilishi"))
-    expires_in = models.DateTimeField(blank=True, null=True)
+    expires_in = models.DateField(blank=True, null=True)
 
     is_top = models.BooleanField(default=False, null=True, blank=True)
 
     def save(self, *args, **kwargs):
-        if has_changed(self, "photo"):
-            self.photo = add_watermark(self.photo)
+        # if has_changed(self, "photo"):
+        #     self.photo = add_watermark(self.photo)
+        self.photo = add_watermark(self.photo)
+        if not self.id:
+            now = datetime.now()
+            next = now + timedelta(days=7)
+            year, month, day = next.year, next.month, next.day
+            self.expires_in = "{}-{}-{}".format(year, month, day)
         super(Estate, self).save(*args, **kwargs)
 
 
@@ -129,8 +161,9 @@ class EstatePhoto(models.Model, DateTimeMixin):
     photo = models.FileField(upload_to="images/")
 
     def save(self, *args, **kwargs):
-        if has_changed(self, "photo"):
-            self.photo = add_watermark(self.photo)
+        # if has_changed(self, "photo"):
+        #     self.photo = add_watermark(self.photo)
+        self.photo = add_watermark(self.photo)
         super(EstatePhoto, self).save(*args, **kwargs)
 
 
