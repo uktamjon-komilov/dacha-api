@@ -43,6 +43,10 @@ class HomeApiView(APIView):
                 {
                     "url": self.url_for("views"),
                     "description": "Using this endpoint you can add view count to an estate with user's ip address"
+                },
+                {
+                    "url": self.url_for("address"),
+                    "description": "List all available estate addresses. (e.g. /api/address/?q=Tash)"
                 }
             ],
             status=status.HTTP_200_OK

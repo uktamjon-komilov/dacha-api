@@ -173,6 +173,22 @@ class EstateViewsCreateView(CreateAPIView):
             return Response({}, status=status.HTTP_400_BAD_REQUEST)
 
 
+
+class AddressListView(ListAPIView):
+
+    def get(self, request):
+        addresses = []
+        queryset = Estate.objects.all()
+        q = self.request.query_params.get("q", None)
+        if q:
+            queryset = queryset.filter(address__contains=q)
+    
+        for item in queryset:
+            if not item.address in addresses:
+                addresses.append(item.address)
+        return Response(addresses, status=status.HTTP_200_OK)
+
+
 class EstateViewSet(ModelViewSet):
     serializer_class = EstateSerializer
     queryset = Estate.objects.all()
@@ -272,6 +288,9 @@ class EstateViewSet(ModelViewSet):
     @action(detail=False, methods=["get"], url_name="top")
     def top(self, request):
         queryset = self.get_queryset().filter(is_top=True)
+        estate_type = self.request.query_params.get("estate_type", None)
+        if estate_type:
+            queryset = queryset.filter(estate_type__id=estate_type)
         serializer = self.serializer_class(queryset, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
@@ -279,6 +298,9 @@ class EstateViewSet(ModelViewSet):
     @action(detail=False, methods=["get"], url_name="simple")
     def simple(self, request):
         queryset = self.get_queryset().filter(is_top=False)
+        estate_type = self.request.query_params.get("estate_type", None)
+        if estate_type:
+            queryset = queryset.filter(estate_type__id=estate_type)
         serializer = self.serializer_class(queryset, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
     

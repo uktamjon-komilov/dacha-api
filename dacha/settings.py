@@ -113,10 +113,12 @@ REDIS_PORT = 6379
 #     "DEFAULT_PAGINATION_CLASS": "api.pagination.CustomPagination"
 # }
 
-CORS_ALLOWED_ORIGINS = [
-    "localhost:3000",
-    "http://localhost:3000",
-    "https://dachaturizm.netlify.app/",
-    "http://dachaturizm.netlify.app/",
-    "dachaturizm.netlify.app/"
-]
+# CORS_ALLOWED_ORIGINS = [
+#     "localhost:3000",
+#     "http://localhost:3000",
+#     "https://dachaturizm.netlify.app/",
+#     "http://dachaturizm.netlify.app/",
+#     "dachaturizm.netlify.app/"
+# ]
+
+CORS_ALLOW_ALL_ORIGINS = True
