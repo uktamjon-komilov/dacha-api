@@ -181,6 +181,7 @@ class EstateViewsCreateView(CreateAPIView):
 
 
 class AddressListView(ListAPIView):
+    queryset = Estate.objects.all()
 
     def get(self, request):
         addresses = []
@@ -261,19 +262,6 @@ class EstateViewSet(ModelViewSet):
 
         return queryset
     
-
-    def custom_write_file(self, photo):
-        try:
-            filename = os.path.join("images", str(datetime.now()).replace(" ", "_").replace("-", "_").replace(":", "_")[:19] + str(photo))
-            mediapath = os.path.join("media", "images", str(datetime.now()).replace(" ", "_").replace("-", "_").replace(":", "_")[:19] + str(photo))
-            filepath = os.path.join(settings.BASE_DIR, mediapath)
-            with open(filepath, "wb+") as temp_file:
-                for chunk in photo.chunks():
-                    temp_file.write(chunk)
-        except Exception as e:
-            print(e, "202")
-        
-        return filename, filepath
     
     def create(self, request, *args, **kwargs):
         data = request.data
@@ -325,6 +313,86 @@ class EstateViewSet(ModelViewSet):
                             vvalue = translate_text(avalues[vkey], akeys, key)
                             setattr(testate, vkey, vvalue)
                 testate.save()
+        
+        i = 1
+        while True:
+            photo = data.get(f"photo{i}", None)
+            if not photo:
+                print(i)
+                break
+            estate_photo = EstatePhoto(estate=estate, photo=photo)
+            estate_photo.save()
+            i += 1
+ 
+        serializer = self.serializer_class(estate)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+    
+
+    def partial_update(self, request, pk=None, *args, **kwargs):
+        estate = Estate.objects.get(id=pk)
+        data = request.data
+
+        simple_fields = ["beds", "pool", "people", "weekday_price", "weekend_price", "address", "longtitute", "latitute", "announcer", "phone", "photo"]
+        for field in simple_fields:
+            if data.get(field, None) and hasattr(estate, field):
+                setattr(estate, field, data[field])
+
+        if data.get("is_published", None):
+            estate.is_published = (data["is_published"] == "true")
+        
+        if data.get("user", None):
+            user = User.objects.get(id=data["user"])
+            estate.user = user
+        
+        if data.get("estate_type", None):
+            estate_type = EstateType.objects.get(id=data["estate_type"])
+            estate.estate_type = estate_type
+        
+        if data.get("price_type", None):
+            price_type = Currency.objects.get(id=data["price_type"])
+            estate.price_type = price_type
+        
+        estate.save()
+
+        if data.get("facilities", None):
+            facility_ids = list(map(int, data["facilities"][1:-1].split(",")))
+            facilities = EstateFacility.objects.filter(id__in=facility_ids)
+            estate.facilities.clear()
+            for facility in facilities:
+                estate.facilities.add(facility)
+
+        if data.get("translations", None):
+            translations = json.loads(data["translations"])
+            available_lang = get_available_lang(translations)
+            if available_lang:
+                akeys = list(available_lang.keys())[0]
+                avalues = list(available_lang.values())[0]
+                EstateTranslation = ContentType.objects.get(app_label="api", model="estatetranslation").model_class()
+                for key, values in translations.items():
+                    try:
+                        testate = EstateTranslation.objects.get(language_code=key, master_id=estate.id)
+                        if key == akeys:
+                            for vkey, vvalue in values.items():
+                                if hasattr(testate, vkey):
+                                    setattr(testate, vkey, vvalue)
+                        else:
+                            for vkey in values.keys():
+                                if hasattr(testate, vkey):
+                                    vvalue = translate_text(avalues[vkey], akeys, key)
+                                    setattr(testate, vkey, vvalue)
+                        testate.save()
+                    except:
+                        testate = EstateTranslation(language_code=key, master_id=estate.id)
+                        if key == akeys:
+                            for vkey, vvalue in values.items():
+                                if hasattr(testate, vkey):
+                                    setattr(testate, vkey, vvalue)
+                        else:
+                            for vkey in values.keys():
+                                if hasattr(testate, vkey):
+                                    vvalue = translate_text(avalues[vkey], akeys, key)
+                                    setattr(testate, vkey, vvalue)
+                        testate.save()
         
         i = 1
         while True:
