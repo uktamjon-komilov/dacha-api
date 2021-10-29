@@ -2,7 +2,7 @@ from datetime import datetime
 from django.db.models import Q
 from django.contrib.contenttypes.models import ContentType
 from rest_framework.viewsets import ModelViewSet, ViewSet
-from rest_framework.generics import ListAPIView, CreateAPIView
+from rest_framework.generics import ListAPIView, CreateAPIView, DestroyAPIView
 from rest_framework.views import APIView
 from rest_framework import status
 from rest_framework.decorators import action, parser_classes
@@ -436,6 +436,88 @@ class EstateViewSet(ModelViewSet):
         return Response(serializer.data, status=status.HTTP_200_OK)
 
 
+class MyChatsListView(ListAPIView):
+    serializer_class = ChatSerializer
+    queryset = Message.objects.all()
+
+    def get(self, request):
+        chats = Message.objects.filter(sender=request.user)
+        if settings.DEBUG:
+            distinct_chat_ids = []
+            for chat in chats:
+                if chat.id not in distinct_chat_ids:
+                    distinct_chat_ids.append(chat.id)
+            chats = Message.objects.filter(id__in=distinct_chat_ids)
+        else:
+            chats = chats.distinct("reciever")
+        serializer = self.serializer_class(chats, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+
+class DeleteChatView(DestroyAPIView):
+    serializer_class = ChatSerializer
+    queryset = Message.objects.all()
+
+    def delete(self, request, *args, **kwargs):
+        data = request.query_params
+        if not data.get("id", None):
+            return Response({
+                "detail": "You must provide chat id as 'id' query param. (e.g. ?id=MTA6Nw==)"
+            }, status=status.HTTP_400_BAD_REQUEST)
+        
+        # sender_id, reciever_id = decode_joint_ids(data["id"])
+        sender_id, reciever_id = data["id"].split(":")
+        messages = Message.objects.filter(sender_id=sender_id, reciever_id=reciever_id)
+        if not messages.exists():
+            return Response({
+                "detail": "Chat does not exist."
+            }, status=status.HTTP_400_BAD_REQUEST)
+
+        messages.delete()
+        return Response({
+            "detail": "Chat has been deleted!"
+        }, status=status.HTTP_200_OK)
+
+
+class MessagesViewSet(ModelViewSet):
+    serializer_class = MessageSerializer
+    queryset = Message.objects.all()
+
+
+    def create(self, request, *args, **kwargs):
+        serializer = self.serializer_class(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return self.default_response(serializer)
+        
+        return Response({
+            "detail": "You have not provided enough information"
+        }, status=status.HTTP_400_BAD_REQUEST)
+    
+
+    def update(self, request, *args, **kwargs):
+        super().update(request, *args, **kwargs)
+        serializer = self.serializer_class(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return self.default_response(serializer)
+
+        return Response({
+            "detail": "You have not provided enough information"
+        }, status=status.HTTP_400_BAD_REQUEST) 
+        
+    
+    def default_response(self, serializer):
+        sender = serializer.validated_data["sender"]
+        reciever = serializer.validated_data["reciever"]
+
+        messages = Message.objects.filter(sender=sender, reciever=reciever)
+        serializer = self.serializer_class(messages, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+
+
+
 class UserViewSet(ModelViewSet):
     serializer_class = UserSerializer
     queryset = User.objects.all()
@@ -450,7 +532,6 @@ class SmsOTP(ViewSet):
         if serializer.is_valid():
             phone = serializer.validated_data["phone"]
             self._send_message(phone)
-
 
 
     @action(detail=False, methods=["post"], url_path="verify")

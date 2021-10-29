@@ -14,6 +14,7 @@ router.register("bookings", EstateBookingViewSet, basename="bookings")
 router.register("ratings", EstateRatingViewSet, basename="ratings")
 router.register("users", UserViewSet, basename="user")
 router.register("estate", EstateViewSet, basename="estate")
+router.register("messages", MessagesViewSet, basename="messages")
 router.register("sms", SmsOTP, basename="sms")
 
 
@@ -25,6 +26,8 @@ urlpatterns = [
     path("currencies/", CurrencyListView.as_view()),
     path("views/", EstateViewsCreateView.as_view()),
     path("address/", AddressListView.as_view()),
+    path("mychats/", MyChatsListView.as_view()),
+    path("delete-chat/", DeleteChatView.as_view()),
 
     path("token/", TokenObtainPairView.as_view(), name="token_obtain_pair"),
     path("token/refresh/", TokenRefreshView.as_view(), name="token_refresh"),

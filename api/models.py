@@ -201,6 +201,16 @@ class EstateRating(models.Model, DateTimeField):
         super(EstateRating, self).save(*args, **kwargs)
 
 
-class EstateViews(models.Model, DateTimeField):
+class EstateViews(models.Model, DateTimeMixin):
     estate = models.ForeignKey(Estate, on_delete=models.CASCADE, related_name="views")
     ip = models.CharField(max_length=255)
+
+
+class Message(models.Model, DateTimeMixin):
+    sender = models.ForeignKey(User, on_delete=models.CASCADE, null=True, blank=True, related_name="sent_messages")
+    reciever = models.ForeignKey(User, on_delete=models.CASCADE, null=True, blank=True, related_name="recieved_messages")
+    text = models.TextField(null=True, blank=True)
+    file = models.FileField(upload_to="attachments/", null=True, blank=True)
+
+    def __str__(self):
+        return "{} -> {}".format(self.sender, self.reciever)

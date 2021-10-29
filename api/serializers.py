@@ -8,6 +8,7 @@ from rest_framework.response import Response
 from parler_rest.serializers import TranslatableModelSerializer, TranslatedFieldsField
 
 from .models import *
+from .utils import *
 from api.image_proccessing.watermarker import add_watermark
 
 
@@ -147,12 +148,40 @@ class EstateSerializer(TranslatableModelSerializer):
 
     def get_user_ads_count(self, obj):
         return Estate.objects.filter(user=obj.user).count()
+
+
+class ChatUserSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = ["id", "phone", "first_name", "last_name", "photo"]
+
+
+class MessageSerializer(serializers.ModelSerializer):
+    # sender = ChatUserSerializer(many=False)
+    # reciever = ChatUserSerializer(many=False)
+
+    class Meta:
+        model = Message
+        fields = ["id", "sender", "reciever", "text", "file"]
+        depth = 1
+
+
+class ChatSerializer(serializers.ModelSerializer):
+    sender = ChatUserSerializer(many=False)
+    reciever = ChatUserSerializer(many=False)
+    id = serializers.SerializerMethodField()
+
+    class Meta:
+        model = Message
+        fields = ["id", "sender", "reciever"]
+        # depth = 1
     
 
-    def create(self, validated_data):
-        print(validated_data)
-        description = validated_data.pop("")
-        # return super(EstateSerializer, self).create(validated_data)
+    def get_id(self, obj):
+        # result = encode_joint_ids(obj.sender.id, obj.reciever.id)
+        # return result
+        return f"{obj.sender.id}:{obj.reciever.id}"
+    
 
 
 class SendOTPSerializer(Serializer):
