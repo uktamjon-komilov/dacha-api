@@ -1,0 +1,358 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2022-04-03 15:09+0500\n"
+"PO-Revision-Date: 2022-04-03 15:10+0437\n"
+"Last-Translator: O'ktamjon Komilov <anonymous@user.tld>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=4; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && n%10<=4 && (n%100<12 || n%100>14) ? 1 : n%10==0 || (n%10>=5 && n%10<=9) || (n%100>=11 && n%100<=14)? 2 : 3);\n"
+"X-Translated-Using: django-rosetta 0.9.8\n"
+
+#: api/managers.py:8
+msgid "Phone and password fields are required"
+msgstr ""
+
+#: api/models.py:22 api/models.py:425 api/models.py:506
+msgid "Telefon raqam"
+msgstr "Телефонный номер"
+
+#: api/models.py:24
+msgid "Ismi"
+msgstr "Имя"
+
+#: api/models.py:26
+msgid "Familiyasi"
+msgstr "Фамилия"
+
+#: api/models.py:39 api/models.py:345
+msgid "Foydalanuvchi"
+msgstr "Пользователь"
+
+#: api/models.py:40
+msgid "Foydalanuvchilar"
+msgstr "Пользователи"
+
+#: api/models.py:77 api/models.py:90 api/models.py:108 api/models.py:139
+#: api/models.py:154 api/models.py:385 api/models.py:401 api/models.py:422
+#: api/models.py:437 api/models.py:471 api/models.py:488 api/models.py:507
+msgid "Nomi"
+msgstr "Заголовок"
+
+#: api/models.py:81
+msgid "Pul birligi"
+msgstr "Валюта"
+
+#: api/models.py:82
+msgid "Pul birliklari"
+msgstr "Валюты"
+
+#: api/models.py:92 api/models.py:111
+msgid "Qisqacha nom"
+msgstr "Короткое имя"
+
+#: api/models.py:93
+msgid "Ikonka"
+msgstr ""
+
+#: api/models.py:94
+msgid "Mavqeyi"
+msgstr ""
+
+#: api/models.py:95
+msgid "Rangi"
+msgstr ""
+
+#: api/models.py:96
+msgid "Orqa foni"
+msgstr ""
+
+#: api/models.py:99
+msgid "Kategoriya"
+msgstr ""
+
+#: api/models.py:100
+msgid "Kategoriyalar"
+msgstr ""
+
+#: api/models.py:114
+msgid "Qulaylik"
+msgstr ""
+
+#: api/models.py:115 api/models.py:189
+msgid "Qulayliklar"
+msgstr ""
+
+#: api/models.py:123
+msgid "IN"
+msgstr ""
+
+#: api/models.py:124
+msgid "OUT"
+msgstr ""
+
+#: api/models.py:127
+msgid "Miqdor"
+msgstr ""
+
+#: api/models.py:128
+msgid "Sana"
+msgstr ""
+
+#: api/models.py:129
+msgid "Sababi"
+msgstr ""
+
+#: api/models.py:130
+msgid "Turi"
+msgstr ""
+
+#: api/models.py:131
+msgid "Yakunlanganligi"
+msgstr ""
+
+#: api/models.py:134
+msgid "O'tkazma"
+msgstr ""
+
+#: api/models.py:135
+msgid "O'tkazmalar"
+msgstr ""
+
+#: api/models.py:142 api/models.py:211
+msgid "Mashxur joy"
+msgstr ""
+
+#: api/models.py:143
+msgid "Mashxur joylar"
+msgstr ""
+
+#: api/models.py:150
+msgid "E'lon beruvchi profili"
+msgstr ""
+
+#: api/models.py:155
+msgid "Tavsif"
+msgstr ""
+
+#: api/models.py:156 api/models.py:476
+msgid "Viloyat"
+msgstr ""
+
+#: api/models.py:157 api/models.py:495
+msgid "Tuman"
+msgstr ""
+
+#: api/models.py:165
+msgid "Mulk turi"
+msgstr ""
+
+#: api/models.py:173
+msgid "Asosiy rasm"
+msgstr ""
+
+#: api/models.py:182
+msgid "Kichkina rasm"
+msgstr ""
+
+#: api/models.py:185
+msgid "Yotoqlar soni"
+msgstr ""
+
+#: api/models.py:186
+msgid "Basseyn soni"
+msgstr ""
+
+#: api/models.py:187
+msgid "Odamlar"
+msgstr ""
+
+#: api/models.py:196
+msgid "Narx turi"
+msgstr ""
+
+#: api/models.py:199
+msgid "Begim kunlaridagi narxi"
+msgstr ""
+
+#: api/models.py:202
+msgid "Dam olish kunlari narxi"
+msgstr ""
+
+#: api/models.py:205
+msgid "Manzil"
+msgstr ""
+
+#: api/models.py:217
+msgid "Longtitute"
+msgstr ""
+
+#: api/models.py:222
+msgid "Latitute"
+msgstr ""
+
+#: api/models.py:227
+msgid "E'lon beruvchi"
+msgstr ""
+
+#: api/models.py:233
+msgid "Chop etilishi"
+msgstr ""
+
+#: api/models.py:238
+msgid "Yaroqlilik muddati"
+msgstr ""
+
+#: api/models.py:241
+msgid "Top banner"
+msgstr ""
+
+#: api/models.py:242 api/models.py:319
+msgid "Banner"
+msgstr ""
+
+#: api/models.py:243
+msgid "Top"
+msgstr ""
+
+#: api/models.py:244
+msgid "Reklama"
+msgstr ""
+
+#: api/models.py:245
+msgid "Oddiy"
+msgstr ""
+
+#: api/models.py:251 api/models.py:339
+msgid "E'lon"
+msgstr ""
+
+#: api/models.py:252
+msgid "E'lonlar"
+msgstr ""
+
+#: api/models.py:298
+msgid "Qo'shimcha rasm"
+msgstr ""
+
+#: api/models.py:299
+msgid "Qo'shimcha rasmlar"
+msgstr ""
+
+#: api/models.py:320
+msgid "Bannerlar"
+msgstr ""
+
+#: api/models.py:331
+msgid "advertised"
+msgstr ""
+
+#: api/models.py:386 api/models.py:402 api/models.py:438
+msgid "Kontent"
+msgstr ""
+
+#: api/models.py:392
+msgid "Statik sahifa"
+msgstr ""
+
+#: api/models.py:393
+msgid "Statik sahifalar"
+msgstr ""
+
+#: api/models.py:405 api/models.py:441
+msgid "Slug"
+msgstr ""
+
+#: api/models.py:407
+msgid "Phone 1"
+msgstr ""
+
+#: api/models.py:408
+msgid "Phone 2"
+msgstr ""
+
+#: api/models.py:409
+msgid "Email"
+msgstr ""
+
+#: api/models.py:412 api/models.py:420
+msgid "Xizmat turi"
+msgstr ""
+
+#: api/models.py:413
+msgid "Xizmat turlar"
+msgstr ""
+
+#: api/models.py:428
+msgid "Xizmat"
+msgstr ""
+
+#: api/models.py:429
+msgid "Xizmatlar"
+msgstr ""
+
+#: api/models.py:442
+msgid "Narxi"
+msgstr ""
+
+#: api/models.py:443
+msgid "Kunlar"
+msgstr ""
+
+#: api/models.py:444
+msgid "Limit"
+msgstr ""
+
+#: api/models.py:445
+msgid "Limit miqdori"
+msgstr ""
+
+#: api/models.py:448
+msgid "Reklama turi"
+msgstr ""
+
+#: api/models.py:449
+msgid "Reklama turlari"
+msgstr ""
+
+#: api/models.py:477
+msgid "Viloyatlar"
+msgstr ""
+
+#: api/models.py:496
+msgid "Tumanlar"
+msgstr ""
+
+#: api/models.py:508
+msgid "Fikri"
+msgstr ""
+
+#: api/models.py:514
+msgid "Izoh"
+msgstr ""
+
+#: api/models.py:515
+msgid "Izohlar"
+msgstr ""
+
+#: dacha/settings.py:110
+msgid "Uzbek"
+msgstr ""
+
+#: dacha/settings.py:111
+msgid "Russian"
+msgstr ""
+
+#: dacha/settings.py:112
+msgid "English"
+msgstr ""
